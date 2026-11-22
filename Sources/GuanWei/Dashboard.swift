@@ -328,6 +328,8 @@ struct FooterBar: View {
     @AppStorage(Prefs.barMem) private var barMem = true
     @AppStorage(Prefs.barNet) private var barNet = true
     @AppStorage(Prefs.appearance) private var appearance = AppearanceMode.system.rawValue
+    @AppStorage(Prefs.autoUpdate) private var autoUpdate = true
+    @EnvironmentObject private var updater: Updater
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
     var body: some View {
@@ -336,6 +338,19 @@ struct FooterBar: View {
                 Image(systemName: "circle.hexagongrid.fill").foregroundStyle(Theme.cyan)
                 Text("观微").font(.system(size: 12, weight: .semibold)).foregroundStyle(Theme.text)
                 Text("· 系统监视器").font(.system(size: 12)).foregroundStyle(Theme.faint)
+                Text("v\(updater.currentVersion)").font(.system(size: 11).monospacedDigit())
+                    .foregroundStyle(Theme.faint)
+                if let r = updater.available {
+                    Button { updater.promptUpdate(r) } label: {
+                        Text(updater.installing ? "正在更新…" : "新版本 v\(r.version)")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background(Capsule().fill(Theme.cyan))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(updater.installing)
+                }
             }
             Spacer()
             Menu {
@@ -350,6 +365,10 @@ struct FooterBar: View {
                 .pickerStyle(.inline)
                 Divider()
                 Toggle("登录时启动", isOn: Binding(get: { launchAtLogin }, set: { setLaunch($0) }))
+                Divider()
+                Button(updater.checking ? "正在检查…" : "检查更新…") { updater.checkNow() }
+                    .disabled(updater.checking)
+                Toggle("自动检查更新", isOn: $autoUpdate)
             } label: {
                 Image(systemName: "slider.horizontal.3")
             }

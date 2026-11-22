@@ -27,10 +27,15 @@ struct GuanWeiApp: App {
         m.start()
         return m
     }()
+    @StateObject private var updater: Updater = {
+        let u = Updater.shared
+        u.startAutoCheck()
+        return u
+    }()
 
     var body: some Scene {
         MenuBarExtra {
-            DashboardView().environmentObject(monitor)
+            DashboardView().environmentObject(monitor).environmentObject(updater)
         } label: {
             Image(nsImage: monitor.menuBarImage)
         }
@@ -49,7 +54,7 @@ enum Snapshot {
             m.tick()
             RunLoop.main.run(until: Date().addingTimeInterval(0.7))
         }
-        write(DashboardView().environmentObject(m), scale: 2, to: path)
+        write(DashboardView().environmentObject(m).environmentObject(Updater.shared), scale: 2, to: path)
         write(m.menuBarImageView, scale: 4, to: path.replacingOccurrences(of: ".png", with: "-bar.png"))
     }
 
@@ -62,7 +67,7 @@ enum Snapshot {
         }
         let m = Monitor.shared
         m.start()
-        let host = NSHostingController(rootView: DashboardView().environmentObject(m))
+        let host = NSHostingController(rootView: DashboardView().environmentObject(m).environmentObject(Updater.shared))
         let win = NSWindow(contentViewController: host)
         win.title = "观微"
         win.styleMask = [.titled, .closable]

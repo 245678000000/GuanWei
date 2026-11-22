@@ -3,6 +3,7 @@
 set -e
 cd "$(dirname "$0")"
 APP="build/观微.app"
+VERSION="$(cat VERSION | tr -d '[:space:]')"
 swift build -c release
 BIN=".build/release/GuanWei"
 
@@ -31,8 +32,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleDisplayName</key><string>观微</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>1.0</string>
-  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleShortVersionString</key><string>${VERSION}</string>
+  <key>CFBundleVersion</key><string>${VERSION}</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
@@ -42,4 +43,9 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 PLIST
 
 codesign --force --deep --sign - "$APP"
-echo "✅ 已生成 $APP"
+
+# 打包发布用 zip（检查更新会下载此文件）
+ZIP="build/GuanWei-${VERSION}.zip"
+rm -f "$ZIP"
+ditto -c -k --keepParent "$APP" "$ZIP"
+echo "✅ 已生成 $APP 与 $ZIP（v${VERSION}）"

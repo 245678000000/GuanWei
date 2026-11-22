@@ -6,9 +6,10 @@ enum Prefs {
     static let barMem = "bar.mem"
     static let barNet = "bar.net"
     static let appearance = "appearance"
+    static let autoUpdate = "update.auto"
 
     static func register() {
-        UserDefaults.standard.register(defaults: [barCPU: true, barMem: true, barNet: true, appearance: AppearanceMode.system.rawValue])
+        UserDefaults.standard.register(defaults: [barCPU: true, barMem: true, barNet: true, appearance: AppearanceMode.system.rawValue, autoUpdate: true])
     }
 }
 
