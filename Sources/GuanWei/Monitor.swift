@@ -29,6 +29,8 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
 final class Monitor: ObservableObject {
     static let shared = Monitor()
     static let historySize = 60
+    /// 截图演示模式：隐藏真实 IP
+    static let demoMode = CommandLine.arguments.contains("--demo")
 
     @Published var cpu = CPUSnapshot()
     @Published var cpuUser: [Double] = []
@@ -87,6 +89,7 @@ final class Monitor: ObservableObject {
         gpu = sampleGPU()
         push(&gpuHistory, gpu)
         net = netSampler.sample()
+        if Self.demoMode { net.localIP = "192.168.1.100" }
         push(&netUp, net.up)
         push(&netDown, net.down)
         disk = diskSampler.sample()
